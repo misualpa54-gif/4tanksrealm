@@ -2628,11 +2628,13 @@
                 const _pN = typeof particles !== 'undefined' ? particles.length : 0;
                 _heavy = _eN > 13 || _bN > 22 || _pN > 48 || (state.level || 1) > 20;
             } catch (err) {}
-            if (_heavy && _autoApplied !== 'low') {
+            state._heavyWins = _heavy ? (state._heavyWins || 0) + 1 : 0; // TT: needs ~2 sustained sample windows (~6s) so a fast dash doesn't drop graphics
+            if (state._heavyWins >= 2 && _autoApplied !== 'low') {
                 _autoApplied = 'low';
+                state._heavyWins = 0;
                 applyQuality('auto');
                 showUpgradeNotification('⚙ Graphics lowered for smooth play');
-            } else if (!_heavy && _autoApplied === 'low') {
+            } else if (!state._heavyWins && _autoApplied === 'low') {
                 _autoApplied = 'high';
                 applyQuality('auto');
                 showUpgradeNotification('⚙ Graphics restored');
@@ -5281,16 +5283,13 @@
 
         // TankThilteteYt: dock the showcase canvas between home and pause (B4 preview object)
         function syncMenuTankPreview() {
-            if (!menuTankPreview) return;
+            // TT: keep the showcase canvas on the home screen only — the pause screen shows its own CSS mark
             const canvas = document.getElementById('menu-tank-view');
             if (!canvas) return;
             const start = document.getElementById('start-screen');
             const home = document.querySelector('#start-screen .tank-mark');
-            const pauseBox = document.querySelector('#pause-screen .pause-tank-mark');
             if (start && !start.classList.contains('hidden') && home) {
                 if (canvas.parentNode !== home) home.appendChild(canvas);
-            } else if (pauseBox && !document.getElementById('pause-screen').classList.contains('hidden')) {
-                if (canvas.parentNode !== pauseBox) pauseBox.appendChild(canvas);
             }
         }
 
@@ -8190,6 +8189,13 @@ function clearTankUpgradeParts(tank){
         } catch (e) {}
         tank._upgradeParts = null;
     }
+    if (tank._upgradePartsTurret) { // TT: turret-anchored parts
+        try {
+            (tank.turretPivot || tank.mesh).remove(tank._upgradePartsTurret);
+            disposeObject3D(tank._upgradePartsTurret);
+        } catch (e) {}
+        tank._upgradePartsTurret = null;
+    }
 }
 function syncTankUpgradeParts(tank){
     if (!tank || !tank.isPlayer || !tank.mesh) return;
@@ -8199,6 +8205,11 @@ function syncTankUpgradeParts(tank){
     root.name = 'upgradeParts';
     tank._upgradeParts = root;
     tank.mesh.add(root);
+    // TT: barrel-axis parts ride the turret pivot so they aim with the cannon
+    const tRoot = new THREE.Group();
+    tRoot.name = 'upgradePartsTurret';
+    (tank.turretPivot || tank.mesh).add(tRoot);
+    tank._upgradePartsTurret = tRoot;
     const add = (geo, mat, x, y, z, rx, ry, rz) => {
         const m = new THREE.Mesh(geo, mat);
         m.position.set(x, y, z);
@@ -8207,6 +8218,16 @@ function syncTankUpgradeParts(tank){
         if (rz) m.rotation.z = rz;
         m.castShadow = true;
         root.add(m);
+        return m;
+    };
+    const addT = (geo, mat, x, y, z, rx, ry, rz) => { // TT: turret space (pivot is at y=1.4)
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(x, y, z);
+        if (rx) m.rotation.x = rx;
+        if (ry) m.rotation.y = ry;
+        if (rz) m.rotation.z = rz;
+        m.castShadow = true;
+        tRoot.add(m);
         return m;
     };
     const steel = new THREE.MeshStandardMaterial({ color: 0x6b7280, metalness: 0.75, roughness: 0.35 });
@@ -8237,26 +8258,26 @@ function syncTankUpgradeParts(tank){
         add(new THREE.BoxGeometry(0.45, 0.35, 0.7), dark, 1.15, 1.35, -0.6);
     }
     if ((ps.damage || 100) > 100) {
-        add(new THREE.CylinderGeometry(0.28, 0.22, 0.45, 10), steel, 0, 1.95, 3.55, Math.PI / 2, 0, 0);
+        addT(new THREE.CylinderGeometry(0.28, 0.22, 0.45, 10), steel, 0, 0.55, 3.55, Math.PI / 2, 0, 0); // TT: on the barrel
     }
     if ((ps.regen || 0) > 0) {
         add(new THREE.CylinderGeometry(0.16, 0.16, 0.5, 8), green, -0.7, 1.55, -0.9);
         add(new THREE.CylinderGeometry(0.16, 0.16, 0.5, 8), green, 0.7, 1.55, -0.9);
     }
     if ((ps.crit || 0) > 0) {
-        add(new THREE.BoxGeometry(0.18, 0.14, 0.55), dark, 0.45, 2.35, 0.55);
-        add(new THREE.CylinderGeometry(0.08, 0.08, 0.35, 8), cyan, 0.45, 2.35, 0.95, Math.PI / 2, 0, 0);
+        addT(new THREE.BoxGeometry(0.18, 0.14, 0.55), dark, 0.45, 0.95, 0.55); // TT: turret space
+        addT(new THREE.CylinderGeometry(0.08, 0.08, 0.35, 8), cyan, 0.45, 0.95, 0.95, Math.PI / 2, 0, 0);
     }
     if ((ps.multishot || 0) > 0) {
         const n = Math.min(3, ps.multishot | 0);
         for (let i = 0; i < n; i++) {
-            const y = 1.7 + i * 0.12;
-            add(new THREE.CylinderGeometry(0.07, 0.09, 1.4, 8), steel, -1.1, y, 1.2, Math.PI / 2, 0, 0);
-            add(new THREE.CylinderGeometry(0.07, 0.09, 1.4, 8), steel, 1.1, y, 1.2, Math.PI / 2, 0, 0);
+            const y = 0.3 + i * 0.12; // TT: turret space
+            addT(new THREE.CylinderGeometry(0.07, 0.09, 1.4, 8), steel, -1.1, y, 1.2, Math.PI / 2, 0, 0);
+            addT(new THREE.CylinderGeometry(0.07, 0.09, 1.4, 8), steel, 1.1, y, 1.2, Math.PI / 2, 0, 0);
         }
     }
     if ((ps.pierce || 0) > 0) {
-        add(new THREE.ConeGeometry(0.14, 0.55, 8), cyan, 0, 1.95, 4.0, Math.PI / 2, 0, 0);
+        addT(new THREE.ConeGeometry(0.14, 0.55, 8), cyan, 0, 0.55, 4.0, Math.PI / 2, 0, 0); // TT: barrel tip
     }
     if ((ps.missile || 0) > 0) {
         const n = Math.min(3, ps.missile | 0);
@@ -8273,28 +8294,28 @@ function syncTankUpgradeParts(tank){
         add(new THREE.TorusGeometry(0.28, 0.04, 6, 12), orange, 0, 1.55, -1.35, Math.PI / 2, 0, 0);
     }
     if ((ps.shield || 0) > 0) {
-        add(new THREE.SphereGeometry(0.28, 12, 10), blue, 0, 2.55, -0.2);
+        addT(new THREE.SphereGeometry(0.28, 12, 10), blue, 0, 1.15, -0.2); // TT: above the hatch
     }
     if ((ps.coinBonus || 0) > 0) {
         add(new THREE.TorusGeometry(0.2, 0.05, 6, 10), gold, -1.2, 0.7, 1.6, 0, 0, Math.PI / 2);
         add(new THREE.TorusGeometry(0.2, 0.05, 6, 10), gold, 1.2, 0.7, 1.6, 0, 0, Math.PI / 2);
     }
     if ((ps.healOnKill || 0) > 0) {
-        add(new THREE.BoxGeometry(0.5, 0.12, 0.18), green, 0, 1.7, 1.5);
-        add(new THREE.BoxGeometry(0.18, 0.12, 0.5), green, 0, 1.7, 1.5);
+        addT(new THREE.BoxGeometry(0.5, 0.12, 0.18), green, 0, 0.3, 1.5); // TT: turret space
+        addT(new THREE.BoxGeometry(0.18, 0.12, 0.5), green, 0, 0.3, 1.5);
     }
     if ((ps.adrenaline || 0) > 0) {
         add(new THREE.BoxGeometry(0.12, 0.55, 0.9), red, -1.35, 1.4, -1.2, 0, 0, 0.35);
         add(new THREE.BoxGeometry(0.12, 0.55, 0.9), red, 1.35, 1.4, -1.2, 0, 0, -0.35);
     }
     if ((ps.xpBonus || 0) > 0) {
-        add(new THREE.BoxGeometry(0.06, 0.9, 0.06), dark, 0.85, 2.4, -0.7);
-        add(new THREE.BoxGeometry(0.35, 0.22, 0.04), gold, 1.05, 2.7, -0.7);
+        addT(new THREE.BoxGeometry(0.06, 0.9, 0.06), dark, 0.85, 1.0, -0.7); // TT: turret space
+        addT(new THREE.BoxGeometry(0.35, 0.22, 0.04), gold, 1.05, 1.3, -0.7);
     }
     if (ps._cluster || ps.evo_cluster) { // TT: normalized flag
-        add(new THREE.SphereGeometry(0.16, 8, 8), orange, -0.5, 2.2, 0.8);
-        add(new THREE.SphereGeometry(0.16, 8, 8), orange, 0.5, 2.2, 0.8);
-        add(new THREE.SphereGeometry(0.12, 8, 8), orange, 0, 2.35, 1.1);
+        addT(new THREE.SphereGeometry(0.16, 8, 8), orange, -0.5, 0.8, 0.8); // TT: turret space
+        addT(new THREE.SphereGeometry(0.16, 8, 8), orange, 0.5, 0.8, 0.8);
+        addT(new THREE.SphereGeometry(0.12, 8, 8), orange, 0, 0.95, 1.1);
     }
     if (ps._bastion || ps.evo_bastion) { // TT: normalized flag
         add(new THREE.BoxGeometry(3.0, 0.2, 0.35), steel, 0, 1.35, 1.9);
@@ -8302,7 +8323,7 @@ function syncTankUpgradeParts(tank){
         add(new THREE.BoxGeometry(0.35, 0.5, 0.35), steel, 1.2, 1.55, 1.9);
     }
     if (ps._prism || ps.evo_prism) { // TT: normalized flag
-        add(new THREE.OctahedronGeometry(0.28, 0), purple, 0, 2.6, 0.3);
+        addT(new THREE.OctahedronGeometry(0.28, 0), purple, 0, 1.2, 0.3); // TT: turret space
     }
     if (ps._nanite || ps.evo_nanite) { // TT: normalized flag
         add(new THREE.SphereGeometry(0.2, 10, 10), green, 0, 1.3, 0);
