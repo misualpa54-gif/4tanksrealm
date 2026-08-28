@@ -124,6 +124,12 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.75);
             line-height: 1.15;
         }
+        #xp-pct, #hp-pct { /* v1.1: number readouts (e.g. 47/100) need room */
+            min-width: 72px;
+            text-align: right;
+            font-size: 14px;
+            font-variant-numeric: tabular-nums;
+        }
         .status-card, .level-chip {
             /* equal tiles now share .res-card */
         }
@@ -196,12 +202,9 @@
         }
         .pb-chip b { color: #fff; }
         .kit-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
+            display: block;
             max-width: 360px;
-            max-height: 22vh;
+            max-height: 30vh;
             overflow-y: auto;
             margin: 6px auto 2px;
             padding: 0 8px;
@@ -581,6 +584,25 @@
         }
         #hud-combo { color: #fbbf24; border-color: rgba(251,191,36,0.55); }
         .buff-row { display: flex; flex-wrap: wrap; gap: 4px; }
+        /* v1.1: live damage/speed meter */
+        .combat-meter {
+            flex: 1 1 100%;
+            display: flex; flex-direction: column; gap: 3px;
+            margin-top: 3px;
+            padding: 5px 7px;
+            background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(209,184,125,0.3);
+            border-radius: 9px;
+            pointer-events: none;
+            max-width: calc(100% - 118px);
+        }
+        .cm-row { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 800; }
+        .cm-lab { color: #D1B87D; min-width: 26px; letter-spacing: 1px; }
+        .cm-track { flex: 1 1 auto; height: 6px; background: rgba(255,255,255,0.12); border-radius: 4px; overflow: hidden; }
+        .cm-fill { height: 100%; border-radius: 4px; transition: width .3s ease; }
+        #cm-dmg { background: linear-gradient(90deg, #ef4444, #f97316); }
+        #cm-spd { background: linear-gradient(90deg, #0ea5e9, #22d3ee); }
+        .cm-val { min-width: 40px; text-align: right; color: #fff; font-variant-numeric: tabular-nums; }
         .buff-shield { border-color: #60a5fa; color: #93c5fd; }
         .buff-ready { border-color: #38bdf8; color: #7dd3fc; }
         .buff-oc { border-color: #c084fc; color: #e9d5ff; }
@@ -811,16 +833,55 @@
         /* combo decay bar */
         #hud-combo { position: relative; overflow: hidden; }
         #combo-decay { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: #fbbf24; opacity: .85; transform-origin: left; }
-        /* build summary (phase-2) */
-        .build-phase2-title { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.55); margin-bottom: 6px; text-align: center; }
-        .build-phase2-evo { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 7px; }
-        .build-evo-chip { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; border: 1px solid #52efff;
-            color: #52efff; background: rgba(82,239,255,.08); }
-        .build-evo-chip.locked { border-color: rgba(255,255,255,.25); color: rgba(255,255,255,.5); background: rgba(255,255,255,.04); }
-        .build-card-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 5px; max-width: 340px; margin: 0 auto; }
-        .build-card-row { display: flex; justify-content: space-between; gap: 6px; font-size: 10px; padding: 4px 7px; border-radius: 7px;
+        /* build summary (phase-2) — v1.1: deduped loadout + tappable evolutions */
+        .build-phase2-title { font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.55); margin: 8px 0 6px; text-align: center; }
+        .build-phase2-title.evo-title { margin-top: 12px; }
+        .build-upgrade-list { display: flex; flex-direction: column; gap: 4px; max-width: 320px; margin: 0 auto; }
+        .build-up-row { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 5px 9px; border-radius: 9px;
             border: 1px solid var(--tt-gold-line); background: rgba(251,191,36,.07); color: #fde68a; }
-        .build-card-row em { font-style: normal; font-weight: 800; color: #fbbf24; }
+        .build-up-row.empty { justify-content: center; color: rgba(255,255,255,.5); border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.03); }
+        .bu-icon { font-size: 14px; flex: 0 0 auto; }
+        .bu-name { flex: 1 1 auto; text-align: left; }
+        .bu-count { font-weight: 800; color: #fbbf24; font-variant-numeric: tabular-nums; }
+        .build-evo-list { display: flex; flex-direction: column; gap: 4px; max-width: 320px; margin: 0 auto; }
+        .build-evo-btn { display: flex; align-items: center; gap: 8px; width: 100%; font-size: 12px; padding: 6px 9px; border-radius: 9px; cursor: pointer;
+            border: 1px solid rgba(82,239,255,.5); background: rgba(82,239,255,.08); color: #cffcff; text-align: left; }
+        .build-evo-btn.on { border-color: #52efff; background: rgba(82,239,255,.16); }
+        .build-evo-btn.locked { border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.03); color: rgba(255,255,255,.6); }
+        .be-icon { font-size: 14px; flex: 0 0 auto; }
+        .be-name { flex: 1 1 auto; }
+        .be-status { font-size: 10px; font-weight: 800; letter-spacing: .5px; color: #fbbf24; }
+        .build-evo-btn.on .be-status { color: #52efff; }
+        /* evolution detail page (v1.1) */
+        #evo-detail { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; }
+        .evo-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(3px); }
+        .evo-panel { position: relative; width: min(86vw, 360px); max-height: 82vh; overflow-y: auto; border-radius: 18px;
+            border: 1px solid rgba(82,239,255,.45); background: linear-gradient(180deg, #12181f 0%, #0b0f13 100%);
+            box-shadow: 0 18px 50px rgba(0,0,0,.6); padding: 16px 16px 14px; color: #e7f6f7; }
+        .evo-panel-head { display: flex; align-items: center; gap: 12px; }
+        .evo-big-icon { font-size: 34px; }
+        .evo-name { font-size: 18px; font-weight: 800; color: #fff; }
+        .evo-badge { margin-top: 4px; font-size: 11px; font-weight: 800; letter-spacing: 1px; padding: 3px 9px; border-radius: 999px; display: inline-block; }
+        .evo-badge.on { background: rgba(82,239,255,.16); color: #52efff; border: 1px solid rgba(82,239,255,.55); }
+        .evo-badge.off { background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.2); }
+        .evo-desc { margin: 12px 0 4px; font-size: 13px; color: rgba(255,255,255,.85); line-height: 1.4; }
+        .evo-sec { margin: 14px 0 6px; font-size: 10px; letter-spacing: 2px; color: rgba(255,255,255,.5); }
+        .evo-reqs { display: flex; flex-direction: column; gap: 4px; }
+        .evo-req { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 6px 9px; border-radius: 9px;
+            border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.04); }
+        .evo-req.ok { border-color: rgba(74,222,128,.5); background: rgba(74,222,128,.09); }
+        .er-icon { font-size: 13px; flex: 0 0 auto; }
+        .er-name { flex: 1 1 auto; }
+        .er-count { font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+        .er-check { color: #4ade80; font-weight: 900; }
+        .evo-alls { display: flex; flex-direction: column; gap: 3px; }
+        .evo-all { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; padding: 4px 7px; border-radius: 7px;
+            border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.55); }
+        .evo-all.active { border-color: rgba(82,239,255,.45); color: #cffcff; background: rgba(82,239,255,.08); }
+        .evo-all b { font-size: 10px; font-weight: 800; color: #fbbf24; }
+        .evo-all.active b { color: #52efff; }
+        .evo-close { margin: 16px auto 0; display: block; padding: 9px 26px; border-radius: 11px; cursor: pointer; font-size: 14px; font-weight: 800; letter-spacing: 1px;
+            border: 1px solid rgba(209,184,125,0.5); background: rgba(209,184,125,0.12); color: #fde68a; }
         /* upgrade-card extras */
         .uc-owned { font-size: 9px; color: rgba(255,255,255,.55); margin-top: 5px; letter-spacing: 1px; }
         .uc-requires { font-size: 9px; color: rgba(82,239,255,.85); margin-top: 2px; }
@@ -1580,6 +1641,10 @@
             <div id="hud-status" class="hud-status">
                 <div id="hud-combo" class="hud-pill hidden"><span id="combo-label">×1</span><i id="combo-decay"></i></div>
                 <div id="buff-row" class="buff-row"></div>
+                <div id="combat-meter" class="combat-meter"> <!-- v1.1: live damage/speed meter -->
+                    <div class="cm-row"><span class="cm-lab">DMG</span><div class="cm-track"><div class="cm-fill" id="cm-dmg"></div></div><span class="cm-val" id="cm-dmg-val">100%</span></div>
+                    <div class="cm-row"><span class="cm-lab">SPD</span><div class="cm-track"><div class="cm-fill" id="cm-spd"></div></div><span class="cm-val" id="cm-spd-val">100%</span></div>
+                </div>
             </div>
             <div class="hud-corner">
                 <button id="btn-pause" class="pause-btn" aria-label="Pause game">⏸</button>
@@ -1856,7 +1921,7 @@
                 treeCount: 20,
                 rockCount: 35,
                 grassCount: 60,
-                hasWater: true,
+                hasWater: false,
                 waterColor: 0x4a90b8,
                 particleColor: 0xffffff,
                 particleType: 'snow',
@@ -1925,7 +1990,7 @@
                 treeCount: 45,
                 rockCount: 20,
                 grassCount: 180,
-                hasWater: true,
+                hasWater: false,
                 waterColor: 0x2f4f2f,
                 particleColor: 0x90ee90,
                 particleType: 'fireflies',
@@ -1976,7 +2041,7 @@
                 groundColor: 0x4a3a30, grassColor: 0x7cc47f,
                 ambientLight: 0x706058, sunColor: 0xfff0f5, sunIntensity: 1.25,
                 treeCount: 45, rockCount: 20, grassCount: 160,
-                hasWater: true, waterColor: 0x64b6c8,
+                hasWater: false, waterColor: 0x64b6c8,
                 particleColor: 0xf9a8d4, particleType: 'leaves',
                 leafA: 0xf9a8d4, leafB: 0xffc4d6,
                 terrainAmplitude: 1.8, terrainFrequency: 0.08,
@@ -2041,7 +2106,7 @@
             minelayer:    { name: "Mine Layer",   color: 0x3f6212, hp: 85,  speed: 0.88, damage: 22, fireRate: 0.2,  size: 1.0,  points: 230, desc: "Drops mines — do not park on them" },
             commander:    { name: "Commander",    color: 0xeab308, hp: 155, speed: 0.68, damage: 14, fireRate: 0.28, size: 1.18, points: 360, desc: "Buffs nearby tanks — cut the leader" },
             // v6(C): bosses
-            warlord:  { name: "WARLORD",  color: 0xb91c1c, hp: 600, speed: 0.45, damage: 20, fireRate: 0.3, size: 2.6, points: 1500, desc: "BOSS — five-shell barrages" },
+            warlord:  { name: "WARLORD",  color: 0xb91c1c, hp: 600, speed: 0.45, damage: 10, fireRate: 0.3, size: 2.6, points: 1500, desc: "BOSS — five-shell barrages" },
             colossus: { name: "COLOSSUS", color: 0x6d28d9, hp: 750, speed: 0.35, damage: 15, fireRate: 0.3, size: 3.0, points: 1800, desc: "BOSS — bursts and reinforcements" },
             nova:     { name: "NOVA",     color: 0x475569, hp: 550, speed: 0.7,  damage: 12, fireRate: 0.3, size: 2.4, points: 2000, desc: "BOSS — cloaked nova rings" },
             // v24 bosses
@@ -2078,7 +2143,7 @@
             shieldbearer: { color: 0x93c5fd, speed: 28, life: 1.50, style: 'bolt',  home: 0.00 },
             minelayer:    { color: 0xa3e635, speed: 26, life: 1.35, style: 'spark', home: 0.00 },
             commander:    { color: 0xfacc15, speed: 32, life: 1.45, style: 'bolt',  home: 0.00 },
-            warlord:    { color: 0xf87171, speed: 36, life: 1.90, style: 'slug',  home: 0.22 },
+            warlord:    { color: 0xf87171, speed: 18, life: 1.90, style: 'slug',  home: 0.22 },
             colossus:   { color: 0xa78bfa, speed: 32, life: 2.10, style: 'orb',   home: 0.20 },
             nova:       { color: 0x67e8f9, speed: 40, life: 1.70, style: 'spark', home: 0.14 },
             titan:      { color: 0x93c5fd, speed: 30, life: 1.80, style: 'slug',  home: 0.18 },
@@ -3579,13 +3644,7 @@
         }
 
         function buildChunkWater(biome, x, z, chunk) {
-            const waterGeo = new THREE.PlaneGeometry(26, 26, 12, 12);
-            const waterMat = new THREE.MeshStandardMaterial({ color: biome.waterColor, transparent: true, opacity: 0.7, roughness: 0.1, metalness: 0.8 });
-            const m = new THREE.Mesh(waterGeo, waterMat);
-            m.rotation.x = -Math.PI / 2;
-            m.position.set(x, getTerrainHeight(x, z) + 0.2, z);
-            waterMeshes.push(m); // v26: registered for the wave animation
-            chunk.meshes.push(m); // v22: added at commit
+            return; // v1.1: water disabled everywhere — no water in any biome
         }
         function buildChunkLava(biome, x, z, chunk, rnd) {
             const size = 3 + rnd() * 5;
@@ -5977,7 +6036,7 @@
         }
 
         function spawnSupplyDrop() {
-            if (!player || state.level < 2) return; // TT: crates from Lv2 (eased curve)
+            if (!player) return; // v1.1: airdrops from Level 1
             const a = Math.random() * Math.PI * 2;
             const d = 16 + Math.random() * 18;
             const x = player.mesh.position.x + Math.cos(a) * d;
@@ -6178,7 +6237,11 @@
                 return;
             }
             const kinds = ['repair', 'overcharge', 'shield', 'coins', 'card', 'haste']; // TT: XP crate removed
-            const kind = drop.aid || kinds[Math.floor(Math.random() * kinds.length)]; // TT: aid orbs keep their own kind
+            let kind = drop.aid; // TT: aid orbs keep their own kind
+            if (!kind) { // v1.1: for the first 5 levels airdrops grant health 70% of the time, then all random
+                const L = state.level || 1;
+                kind = L <= 5 && Math.random() < 0.7 ? 'repair' : kinds[Math.floor(Math.random() * kinds.length)];
+            }
             if (drop.aid) try { SFX.vibrate(40); } catch (e) {} // TT
             if (kind === 'repair') {
                 player.hp = Math.min(player.maxHp, player.hp + Math.ceil(player.maxHp * 0.45));
@@ -6214,7 +6277,7 @@
         }
         function updateSupplyDrops(dt) {
             if (!player) return;
-            if (state.level >= 2 && !state.isChoosingUpgrade) {
+            if (!state.isChoosingUpgrade) { // v1.1: drops from Level 1
                 if (state.nextDropAt == null) state.nextDropAt = (state.runTime || 0) + 12;
                 if (state.nextAidAt == null) state.nextAidAt = (state.runTime || 0) + 6; // TT
                 const _crates = supplyDrops.filter(d => d && !d.aid).length;
@@ -7510,7 +7573,7 @@ let combatFX = [], trackMarks = [];
             const xpBar = dom('xp-bar');
             if (xpBar) xpBar.style.width = xpPct + '%';
             const xpPctEl = document.getElementById('xp-pct');
-            if (xpPctEl) xpPctEl.textContent = xpPct + '%';
+            if (xpPctEl) xpPctEl.textContent = Math.max(0, Math.round(state.xp || 0)) + '/' + (state.xpToNext || 1); // v1.1: show numbers not %
             
             dom('stat-speed').textContent = state.playerStats.speed;
             dom('stat-damage').textContent = state.playerStats.damage;
@@ -7524,7 +7587,7 @@ let combatFX = [], trackMarks = [];
             if (player) {
                 const hpPct = Math.max(0, Math.min(100, Math.round((player.hp / (player.maxHp || 1)) * 100)));
                 const hpPctEl = document.getElementById('hp-pct');
-                if (hpPctEl) hpPctEl.textContent = hpPct + '%';
+                if (hpPctEl) hpPctEl.textContent = Math.ceil(player.hp) + '/' + player.maxHp; // v1.1: show numbers not %
                 const bar = dom('hp-bar');
                 if (bar) {
                     bar.style.width = hpPct + '%';
@@ -7537,6 +7600,15 @@ let combatFX = [], trackMarks = [];
                 const chip = document.querySelector('.level-chip');
                 if (chip) chip.classList.toggle('low-hp', !state.reduceFlash && hpPct < 25 && hpPct > 0);
             }
+            // v1.1: live damage/speed meter
+            try {
+                const dmg = (state.playerStats.damage || 100);
+                const spd = (state.playerStats.speed || 100);
+                const dmgV = document.getElementById('cm-dmg-val'); if (dmgV) dmgV.textContent = dmg + '%';
+                const spdV = document.getElementById('cm-spd-val'); if (spdV) spdV.textContent = spd + '%';
+                const dmgF = document.getElementById('cm-dmg'); if (dmgF) dmgF.style.width = Math.max(0, Math.min(100, dmg / 3)) + '%';
+                const spdF = document.getElementById('cm-spd'); if (spdF) spdF.style.width = Math.max(0, Math.min(100, spd / 2)) + '%';
+            } catch (err) {}
             try { updateCombatTray(); } catch (err) {}
         }
 
@@ -8148,17 +8220,8 @@ function noteRunCard(up){
     }
 }
 function ownedMissing(list, id){ return !list || list.indexOf(id) < 0; }
-function renderBuildList(){ // TT: phase-2 build summary — evolutions + card loadout with stack counts
+function renderBuildList(){ // v1.1: clean deduped loadout (one row per skill + count) + tappable evolutions
     const count = s => (state.runCardStats || []).filter(x => x === s).length;
-    const owned = (state.evolutions || []).map(id => EVOLUTIONS.find(e => e.id === id)).filter(Boolean);
-    const nearest = EVOLUTIONS.filter(e => (state.evolutions || []).indexOf(e.id) < 0)
-        .map(e => {
-            const req = e.requires || {};
-            const g = Object.entries(req).reduce((a, [k, n]) => a + Math.min(n, count(k)), 0);
-            const t = Object.values(req).reduce((a, n) => a + n, 0);
-            return { e: e, p: t ? g / t : 0, g: g, t: t };
-        })
-        .sort((a, b) => b.p - a.p).slice(0, 2);
     const byStat = {};
     for (const c of (state.runCards || [])) {
         if (!c || c.evo) continue;
@@ -8167,18 +8230,62 @@ function renderBuildList(){ // TT: phase-2 build summary — evolutions + card l
     }
     const rows = Object.values(byStat).sort((a, b) => b.n - a.n);
     const grid = rows.length
-        ? rows.map(r => '<span class="build-card-row"><b>' + r.icon + ' ' + r.text + '</b><em>×' + r.n + '</em></span>').join('')
-        : '<span class="build-card-row"><b>No cards yet</b><em>—</em></span>';
-    const evoChips = owned.length
-        ? owned.map(e => '<span class="build-evo-chip">' + e.icon + ' ' + e.text + '</span>').join('')
-        : nearest.map(x => '<span class="build-evo-chip locked">◇ ' + x.e.text + ' ' + x.g + '/' + x.t + '</span>').join('');
-    const html = '<div class="build-phase2-title">EVOLUTIONS &amp; CARD LOADOUT</div>' +
-        '<div class="build-phase2-evo">' + evoChips + '</div>' +
-        '<div class="build-card-grid">' + grid + '</div>';
+        ? rows.map(r => '<div class="build-up-row"><span class="bu-icon">' + r.icon + '</span><span class="bu-name">' + r.text + '</span><span class="bu-count">×' + r.n + '</span></div>').join('')
+        : '<div class="build-up-row empty"><span class="bu-name">No upgrades yet</span></div>';
+    // evolutions — every one, shown once, tap to open its detail page
+    const evoRows = EVOLUTIONS.map(e => {
+        const active = (state.evolutions || []).indexOf(e.id) >= 0;
+        const status = active ? '<span class="be-status">ACTIVE</span>' : '<span class="be-status">' + evolutionProgress(e) + '</span>';
+        return '<button class="build-evo-btn ' + (active ? 'on' : 'locked') + '" data-evo="' + e.id + '">' +
+            '<span class="be-icon">' + e.icon + '</span><span class="be-name">' + e.text + '</span>' + status + '</button>';
+    }).join('');
+    const html = '<div class="build-phase2-title">UPGRADES</div>' +
+        '<div class="build-upgrade-list">' + grid + '</div>' +
+        '<div class="build-phase2-title evo-title">EVOLUTIONS</div>' +
+        '<div class="build-evo-list">' + evoRows + '</div>';
     const pk = document.getElementById('pause-kit');
-    if (pk) pk.innerHTML = html;
+    if (pk) { pk.innerHTML = html; bindEvoButtons(pk); }
     const dk = document.getElementById('death-kit');
-    if (dk) dk.innerHTML = html;
+    if (dk) { dk.innerHTML = html; bindEvoButtons(dk); }
+}
+function bindEvoButtons(root){ // v1.1
+    (root || document).querySelectorAll('[data-evo]').forEach(b => {
+        const id = b.getAttribute('data-evo');
+        const open = (ev) => { if (ev) { ev.preventDefault(); ev.stopPropagation(); } openEvolutionDetail(id); };
+        b.addEventListener('click', open);
+    });
+}
+function openEvolutionDetail(evoId){ // v1.1 — full detail page for one evolution
+    const old = document.getElementById('evo-detail'); if (old) old.remove();
+    const e = EVOLUTIONS.find(x => x.id === evoId);
+    if (!e) return;
+    const count = s => (state.runCardStats || []).filter(x => x === s).length;
+    const active = (state.evolutions || []).indexOf(e.id) >= 0;
+    const reqRows = Object.entries(e.requires || {}).map(([stat, need]) => {
+        const c = CHOICE_UPGRADES.find(u => u.stat === stat);
+        const have = count(stat);
+        const ok = have >= need;
+        return '<div class="evo-req ' + (ok ? 'ok' : '') + '"><span class="er-icon">' + (c ? c.icon : '') + '</span><span class="er-name">' + (c ? c.text : stat) + '</span><span class="er-count">' + have + ' / ' + need + '</span>' + (ok ? '<span class="er-check">✓</span>' : '') + '</div>';
+    }).join('');
+    const allRows = EVOLUTIONS.map(x => {
+        const a = (state.evolutions || []).indexOf(x.id) >= 0;
+        return '<div class="evo-all ' + (a ? 'active' : '') + '"><span>' + x.icon + ' ' + x.text + '</span><b>' + (a ? 'ACTIVE' : evolutionProgress(x)) + '</b></div>';
+    }).join('');
+    const box = document.createElement('div');
+    box.id = 'evo-detail';
+    box.innerHTML = '<div class="evo-backdrop"></div>' +
+        '<div class="evo-panel">' +
+        '<div class="evo-panel-head"><span class="evo-big-icon">' + e.icon + '</span><div><div class="evo-name">' + e.text + '</div><div class="evo-badge ' + (active ? 'on' : 'off') + '">' + (active ? '● ACTIVE' : '◇ IN PROGRESS') + '</div></div></div>' +
+        '<div class="evo-desc">' + e.desc + '</div>' +
+        '<div class="evo-sec">REQUIRED MATERIALS</div>' +
+        '<div class="evo-reqs">' + (reqRows || '<div class="evo-req"><span class="er-name">No materials</span></div>') + '</div>' +
+        '<div class="evo-sec">ALL EVOLUTIONS</div>' +
+        '<div class="evo-alls">' + allRows + '</div>' +
+        '<button class="evo-close">CLOSE</button>' +
+        '</div>';
+    document.body.appendChild(box);
+    box.querySelector('.evo-close').addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); box.remove(); });
+    box.querySelector('.evo-backdrop').addEventListener('click', ev => { box.remove(); });
 }
 function clearTankUpgradeParts(tank){
     if (!tank || !tank.mesh) return;
@@ -8395,8 +8502,16 @@ function showUpgradeChoices(kind){
     });
     const evoAvail = isBossLoot ? eligibleEvolutions() : [];
     const cardCount = 3; // v27.5: always 3 cards, pick one
+    // v1.1: for the first 5 upgrades always offer Health Regen + Heal-on-Kill + one other
+    const earlyCount = (state.runCards || []).filter(c => c && !c.evo).length;
+    const earlyGuarantee = !isBossLoot && kind !== 'headstart' && earlyCount < 5;
     const picks = [];
-    if (evoAvail.length) picks.push(evoAvail[Math.floor(Math.random() * evoAvail.length)]);
+    if (earlyGuarantee) {
+        for (const statKey of ['regen', 'healOnKill']) {
+            const idx = pool.findIndex(u => u.stat === statKey);
+            if (idx >= 0) picks.push(pool.splice(idx, 1)[0]);
+        }
+    } else if (evoAvail.length) picks.push(evoAvail[Math.floor(Math.random() * evoAvail.length)]);
     while (picks.length < cardCount && pool.length) picks.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
     for (let si = picks.length - 1; si > 0; si--) {
         const sj = Math.floor(Math.random() * (si + 1));

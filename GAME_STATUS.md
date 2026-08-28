@@ -1,6 +1,8 @@
 # TankThilteteYt — Game Status
 
-**Version 1.0 — feature-complete and playable.** This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
+**v1.0 is the finished game; v1.1 is the current build with the first tweak batch applied.** This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
+
+> **For the development / handoff log — current version, version history, and the live plan — see `DEVELOPMENT_DIARY.md`.** This file tells you *what* the game is; the diary tells you *where development is and what's next*.
 
 > **For the development / handoff log — current version, version history, and the live plan — see `DEVELOPMENT_DIARY.md`.** This file tells you *what* the game is; the diary tells you *where development is and what's next*.
 
@@ -11,7 +13,7 @@
 We never overwrite a completed version. Every release is its own file, and older files are preserved so we can always revisit them.
 
 - **v1.0 = `TankThilteteYt01.html`** — the frozen, feature-complete baseline. Do NOT edit this.
-- **v1.1 = `TankThilteteYt01_v1.1.html`** — the current working copy (created from v1.0). All upcoming tweaks go here.
+- **v1.1 = `TankThilteteYt01_v1.1.html`** — the current build. It holds the first tweak batch (see the diary changelog): guaranteed early regen/heal cards, airdrops from level 1, Warlord fire nerfed 50%, no water anywhere, HP/XP bars show numbers, an in-game Damage/Speed meter, and a cleaner pause menu with a tappable evolution detail page.
 - Future revisions follow `TankThilteteYt01_v1.2.html`, `TankThilteteYt01_v2.html`, and so on.
 
 When we land a batch of confirmed, working changes, we copy the current file to the next version name and record it in the diary's version log.
@@ -42,13 +44,14 @@ The entire game is **one HTML file (~1 MB)** that runs offline. The 3D engine (*
 
 - **Home screen** — a hangar backdrop with your tank on a spinning display platform (it wears your equipped skin and even shows the upgrade parts). Includes a title, three stat cells, and buttons: *Play*, *Shop*, *Settings*, *Load Save*. A small line shows which skin is equipped.
 - **In-game screen** — the battlefield with a top HUD:
-  - **HP bar** (turns red below 30%, amber below 60%, pulses when critical),
-  - **XP bar**, **level chip**, **score**, **coins**,
+  - **HP bar** (turns red below 30%, amber below 60%, pulses when critical), shown as a **number** like `47/100` that rises when you upgrade (e.g. `80/120`),
+  - **XP bar**, shown as a **number** like `36/120`, plus **level chip**, **score**, **coins**,
+  - a **Damage / Speed meter** (mini bars showing your current damage % and speed %),
   - a small **radar minimap** (tinted with the current biome's fog color, with glowing dots for supply drops and a pulsing ring around bosses),
   - a **combo counter** with a 3-second decay bar,
   - small **buff pills** (shield, overcharge, haste, bounty).
   - Bosses show a slim HP bar along the top.
-- **Pause menu** — resume, quick-save, settings, quit. It also shows your current build (evolutions plus every card you picked, with counts).
+- **Pause menu** — resume, quick-save, settings, quit. It shows your build cleanly: core stats, an **UPGRADES** list with each skill once and a count (e.g. `Missile ×2`), and an **EVOLUTIONS** list below it. Tapping an evolution opens a detail page showing what it needs, what you've already picked, and whether it's active.
 - **Death screen** — run stats (level, kills, coins, best score, **bosses killed**, **highest combo**), your build summary, a shop shortcut, and a **revive button** (pay coins to keep the run going).
 - **Shop / Armory** — permanent upgrades, tank skins, and one-run consumables.
 - **Settings** — sound, music, graphics quality, camera mode, screen-shake (three levels), reduced-flash mode, left-handed controls, control assist, haptics.
@@ -60,7 +63,7 @@ The entire game is **one HTML file (~1 MB)** that runs offline. The 3D engine (*
 1. **Drive** — a joystick occupies the left half of the screen. Push up and the tank moves "up" on the screen. The camera glides behind you and leans into your direction of travel when you're moving fast.
 2. **Fire** — touch and hold the right half. The cannon auto-picks a target and shoots. You never aim manually.
 3. **Kill** — kills give points, coins, and XP. Quick kills in a row build a **combo** (decays after 3 seconds of no kills); a high combo multiplies your coin payout up to **2.2×**.
-4. **Level up** — each level you get **3 upgrade cards and pick 1** (you can reroll the hand if you bought the perk). This is where builds snowball.
+4. **Level up** — each level you get **3 upgrade cards and pick 1** (you can reroll the hand if you bought the perk). This is where builds snowball. **v1.1:** for your **first 5 upgrades** the hand always includes Health Regen (Nano Repair) and Heal-on-Kill (Field Medic) plus one other random card, so early runs never starve for survivability.
 5. **Boss every 5 levels** — one boss at a time, with a **12-second breather** afterward. Beating one heals you **25%** and pays out a special **boss vault** of amplified ("ELITE") cards.
 6. **The world changes every 3 levels** — a new biome fades in.
 7. **Die or quit → bank coins → shop → repeat.**
@@ -146,7 +149,7 @@ Destructible **trees and rocks** are scattered around; they **block bullets**, s
 
 A boss arrives every 5 levels (only one at a time, normal spawns speed up while one lives). Each has a distinct pattern and **two phases — at 60% HP and 30% HP it gets visibly angrier**:
 
-- **Warlord** — fires a fan of shells. *Phase 2:* wider, faster fan. *Phase 3:* double barrages plus two scout reinforcements.
+- **Warlord** (first boss) — fires a fan of shells. *Phase 2:* wider, faster fan. *Phase 3:* double barrages plus two scout reinforcements. **v1.1:** its shells were tuned down — projectile speed and damage both halved so the first boss is fair on a fresh run.
 - **Colossus** — bursts of shells and summons reinforcements. *Phase 2:* bigger waves. *Phase 3:* an extra triple-burst every 10 seconds.
 - **Nova** — fires a ring of shells in all directions and "cloaks" (fades) while charging. *Phase 2:* double rings. *Phase 3:* triple rings plus a teleport dash.
 - **Titan** — a bruiser that slams the ground for a shockwave, blinks across the field, and tracks you with follow-up slams.
@@ -161,13 +164,13 @@ Boss attacks are telegraphed (warning lines) where it makes sense, so you're nev
 
 There are **10 biomes**, and the world changes to the next one every 3 levels. Biomes are **visual themes, not rule-sets**. Each brings its own ground color, fog color/distance, sun light, tree/rock styles, and drifting ambient particles.
 
-The transition is a smooth "morph" — the old world shrinks away as the new one scales in. During it, enemy fire is briefly muted and no new enemies spawn for 3 seconds, so the change never catches you mid-fight. (The radar background is tinted with the current biome's fog color.)
+The transition is a smooth "morph" — the old world shrinks away as the new one scales in. During it, enemy fire is briefly muted and no new enemies spawn for 3 seconds, so the change never catches you mid-fight. (The radar background is tinted with the current biome's fog color.) **v1.1:** water has been removed from every biome — no body of water appears anywhere.
 
 ---
 
 ## Pickups and drops
 
-- **Supply crates** (gold, from level 2) fall from the sky on a beam of light, land with a bounce, and glow on the minimap. Drive into one for one of six rewards: **repair** (+45% HP), **overcharge** (damage boost for 15s), **shield** (instant full shield), **coin cache**, **bonus upgrade card**, or **haste** (10s speed). Crates are more common early and thin out as you level.
+- **Supply crates** (gold, from level 1) fall from the sky on a beam of light, land with a bounce, and glow on the minimap. Drive into one for one of six rewards: **repair** (+45% HP), **overcharge** (damage boost for 15s), **shield** (instant full shield), **coin cache**, **bonus upgrade card**, or **haste** (10s speed). Crates are more common early and thin out as you level. **v1.1:** airdrops now start from level 1, and for the first 5 levels they give the repair (health) reward 70% of the time; after level 5 the reward is fully random.
 - **Black-market crates** (purple, ~1 in 4) open a small shop overlay with extra purchases, bordered in gold — a bit riskier, a bit richer.
 - **Aid orbs** (floating glowing spheres): **green = repair**, **blue = shield**, **cyan = haste**. More common early, rare later.
 - At most **2 crates and 2 orbs** exist at once, and both show as pulsing dots on the radar so you can plan routes around them.
@@ -226,18 +229,18 @@ Everything lives in one HTML file: an embedded copy of *Three.js* for 3D, proced
 
 ## Where development stands
 
-**v1.0 is done.** Every system above is built and passes its code checks. The four older builds are preserved in the folder untouched.
+**v1.0 is done, and v1.1 now carries the first tweak batch** (all applied and syntax-verified). The four older builds are preserved in the folder untouched.
 
-> The game is **feature-complete v1.0**: full survival loop, 33 enemies, 6 phased bosses, 10 visual biomes, a 15-card build system with 6 evolutions, a permanent shop + skins + consumables, 14 achievements, 4 difficulties, revive/save systems, comfort settings, and an installable offline package.
+> The game is **feature-complete**: full survival loop, 33 enemies, 6 phased bosses, 10 visual biomes, a 15-card build system with 6 evolutions, a permanent shop + skins + consumables, 14 achievements, 4 difficulties, revive/save systems, comfort settings, and an installable offline package.
 
-What remains is **not building — it's testing, tuning, and publishing.**
+What remains is **testing, tuning, and publishing** — not building.
 
 ---
 
 ## The next step
 
-1. **Playtest it for real.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — difficulty spikes, poor pacing, an unfair boss, a touch-control problem, a confusing card, or a balance that's too easy/hard. That feedback is exactly what becomes v1.1.
-2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop `TankThilteteYt01.html` (plus `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`) into a repo/static folder and it installs like an app on phones.
-3. **Log any fix requests as v1.1**, saved as a new file (`TankThilteteYt01_v1.1.html`) so v1.0 stays preserved.
+1. **Playtest v1.1.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — difficulty spikes, poor pacing, an unfair boss, a touch-control problem, a confusing card, or a balance that's too easy/hard. That feedback becomes the next batch.
+2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop the current game file (plus `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`) into a repo/static folder and it installs like an app on phones.
+3. **Log the next batch as v1.2**, saved as a new file (`TankThilteteYt01_v1.2.html`) so v1.0 and v1.1 stay preserved.
 
-**If you tell me what felt off during your playtest, that's exactly what I'll change next.**
+**If you tell me what still feels off after playing v1.1, that's exactly what I'll change next.**
