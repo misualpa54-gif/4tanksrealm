@@ -1,6 +1,6 @@
 # TankThilteteYt — Game Status
 
-**v1.0 is the finished game; v1.3 is the current build.** It carries the v1.2 armor soak system + balance fixes, plus the v1.3 "HUD tells the truth" fixes (the damage/speed meters now read honestly, show BOOST/SLOWED, no HP round-up, overflow-safe numbers). This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
+**v1.0 is the finished game; v1.4 is the current build.** It carries everything from v1.2 (armor soak system) and v1.3 (the "HUD tells the truth" meter fixes), plus the v1.4 tuning pass: a **top-speed cap** so stacked speed cards + Adrenaline can't make the tank uncontrollable, and an **Adrenaline damage bonus** so even a single Adrenaline Rush stack is a real reward. This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
 
 > **For the development / handoff log — current version, version history, and the live plan — see `DEVELOPMENT_DIARY.md`.** This file tells you *what* the game is; the diary tells you *where development is and what's next*.
 
@@ -15,8 +15,9 @@ We never overwrite a completed version. Every release is its own file, and older
 - **v1.0 = `TankThilteteYt01.html`** — the frozen, feature-complete baseline. Do NOT edit this.
 - **v1.1 = `TankThilteteYt01_v1.1.html`** — frozen. First tweak batch (see the diary changelog): guaranteed early regen/heal cards, airdrops from level 1, Warlord fire nerfed 50%, no water anywhere, HP/XP bars show numbers, an in-game Damage/Speed meter, and a cleaner pause menu with a tappable evolution detail page.
 - **v1.2 = `TankThilteteYt01_v1.2.html`** — frozen. Second tweak batch: the armor soak system (armor absorbs all damage until it breaks, refills from regen + repair/shield/airdrops), a toned-down early enemy difficulty, a 3-pick early card guarantee, an armor HUD bar, and pause-menu Max HP + Heal/Kill.
-- **v1.3 = `TankThilteteYt01_v1.3.html`** — **the current build.** Third tweak batch ("HUD tells the truth"): the damage/speed meter now shows your *real* live % (base × boosts × slows) and fills to match the number (100% = a full bar), adds a **BOOST**/**SLOWED** status label on the meter, refreshes every 0.15s, drops the HP round-up (uses floor, never falsely shows max), and makes big HP/XP numbers overflow-safe (auto-shrink + ellipsis); the armor pause chip now reads "armor" so it's clearly a soak shield.
-- Future revisions follow `TankThilteteYt01_v1.4.html`, `TankThilteteYt01_v2.html`, and so on.
+- **v1.3 = `TankThilteteYt01_v1.3.html`** — frozen. Third tweak batch ("HUD tells the truth"): the damage/speed meter now shows your *real* live % (base × boosts × slows) and fills to match the number (100% = a full bar), adds a **BOOST**/**SLOWED** status label on the meter, refreshes every 0.15s, drops the HP round-up (uses floor, never falsely shows max), and makes big HP/XP numbers overflow-safe (auto-shrink + ellipsis); the armor pause chip now reads "armor" so it's clearly a soak shield.
+- **v1.4 = `TankThilteteYt01_v1.4.html`** — **the current build.** Fourth tweak batch (tuning pass): the tank's **top speed is capped** (260% of base) in both actual movement and the speed meter, so stacking speed cards + Adrenaline can't make it uncontrollable; each **Adrenaline Rush** stack now also grants **+5% damage** during the burst, so even one stack is a meaningful pick (and isn't swallowed by the speed cap). The armor value is already read out visibly in the top HUD (blue `x/y` bar under HP) and the pause chip.
+- Future revisions follow `TankThilteteYt01_v1.5.html`, `TankThilteteYt01_v2.html`, and so on.
 
 When we land a batch of confirmed, working changes, we copy the current file to the next version name and record it in the diary's version log.
 
@@ -107,13 +108,13 @@ Your power comes from three layers:
 - **Max HP / Regen** — your health pool and health-per-second recovery.
 - **Armor** — a soak shield. It absorbs **all** incoming damage until it is reduced to zero, and **then** the excess hits your health. It refills over time at a rate tied to your regen stat, and is restored to full by repair kits, shield batteries, and airdrops. A small blue bar under your HP shows how much armor is left (and flashes `ARMOR DOWN` when it breaks).
 - **Damage** — each shell hits harder. **Fire rate** — shells leave the barrel faster.
-- **Speed** — top driving speed. **Crit** — chance a shell deals double damage (shows a "CRIT" popup).
+- **Speed** — top driving speed. **v1.4:** speed is capped at 260% of base so stacked speed cards can't make the tank uncontrollable (the meter reflects the same cap). **Crit** — chance a shell deals double damage (shows a "CRIT" popup).
 - **Multishot** — extra parallel projectiles per shot. **Pierce** — a shell keeps going through enemies after the first hit.
 - **Missiles** — a homing missile launcher on a timer; more stacks fire **more missiles per launch** (1, then 2, then 3).
 - **Splash** — shells create an explosion with a ~6.5-unit blast radius instead of single-target damage.
 - **Shield** — a bubble that absorbs one full hit, then recharges on a timer (shows "SHIELD READY" + a vibration when back).
 - **Scavenger** — more coins from kills. **Bounty Hunter** — more XP from kills (faster levels).
-- **Field Medic** — heal a few HP on every kill. **Adrenaline** — a speed burst after every kill.
+- **Field Medic** — heal a few HP on every kill. **Adrenaline** — a speed burst after every kill (each stack: +25% speed for 1.5s, and **v1.4** also +5% damage while the burst is live, so even one stack is worth taking).
 
 **Evolutions** — 6 special run bonuses that appear on your card choices only after you've collected the right *counts* of cards (stacks matter, not just ownership):
 
@@ -231,7 +232,7 @@ Everything lives in one HTML file: an embedded copy of *Three.js* for 3D, proced
 
 ## Where development stands
 
-**v1.0 is done; v1.3 is the current build** and carries both the v1.2 armor soak system + balance fixes and the v1.3 "HUD tells the truth" fixes (all applied and syntax-verified). All older builds are preserved in the folder untouched.
+**v1.0 is done; v1.4 is the current build** and carries the v1.2 armor soak system + balance, the v1.3 "HUD tells the truth" fixes, and the v1.4 tuning pass (top-speed cap, Adrenaline damage bonus) — all applied and syntax-verified. All older builds are preserved in the folder untouched.
 
 > The game is **feature-complete**: full survival loop, 33 enemies, 6 phased bosses, 10 visual biomes, a 15-card build system with 6 evolutions, a permanent shop + skins + consumables, 14 achievements, 4 difficulties, revive/save systems, comfort settings, and an installable offline package.
 
@@ -241,8 +242,8 @@ What remains is **testing, tuning, and publishing** — not building.
 
 ## The next step
 
-1. **Playtest v1.3.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — do the damage/speed bars now **fill to match the number** (100% = full, not a half bar)? Does the **BOOST**/**SLOWED** label show when you pick up haste/adrenaline or drive into the roots biome? Has the HP number **stopped rounding up**? Any **overflow** on big HP/XP numbers? And is the **armor soak system** still feeling right after both phases? That feedback becomes the next batch.
+1. **Playtest v1.4.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — is the **260% top-speed cap** about right (or too tight), does the tank now stay controllable when you stack speed + Adrenaline, does a single **Adrenaline Rush** stack feel worth taking (speed + damage)? That feedback becomes the next batch.
 2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop the current game file (plus `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`) into a repo/static folder and it installs like an app on phones.
-3. **Log the next batch as v1.4**, saved as a new file (`TankThilteteYt01_v1.4.html`) so v1.0–v1.3 stay preserved.
+3. **Log the next batch as v1.5**, saved as a new file (`TankThilteteYt01_v1.5.html`) so v1.0–v1.4 stay preserved.
 
-**If you tell me what still feels off after playing v1.3, that's exactly what I'll change next.**
+**If you tell me what still feels off after playing v1.4, that's exactly what I'll change next.**
