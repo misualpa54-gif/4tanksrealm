@@ -9,12 +9,12 @@ This is the **living handoff log** for this project. It is written so that a bra
 ## TL;DR for the next session (read this first, ~15 seconds)
 
 - **Game:** a single-file 3D auto-aim tank survival arena shooter for phones (`TankThilteteYt01.html`). Feature-complete **v1.0**.
-- **Current working version file:** **`TankThilteteYt01_v1.2.html`** — **v1.2 tweaks are APPLIED** (this is the live, updated build to test).
-- **Frozen baseline (do NOT edit):** `TankThilteteYt01.html` (v1.0).
-- **The human is playtesting.** They asked for a batch of v1.2 tweaks (all applied — see the changelog). My next job: get their reaction, fix anything still off, bump to v1.3 if needed, and log here.
-- **The single most important question to ask the human:** *"Test v1.2 — especially the new armor system (soaks damage until it breaks). Does it feel right? Is the early game fairer now?"*
+- **Current working version file:** **`TankThilteteYt01_v1.3.html`** — **v1.3 tweaks are APPLIED** (this is the live, updated build to test).
+- **Frozen baselines (do NOT edit):** `TankThilteteYt01.html` (v1.0), `TankThilteteYt01_v1.1.html` (v1.1), `TankThilteteYt01_v1.2.html` (v1.2).
+- **The human is playtesting.** v1.2 (armor soak + balance) is frozen; v1.3 adds the "HUD tells the truth" Phase-2 fixes. My next job: get their reaction and continue.
+- **The single most important question to ask the human:** *"Test v1.3 — do the damage/speed meters now read honestly (bar fills to match the number, shows BOOST/SLOWED)? Does the HP number stop rounding up? Any overflow?"*
 
-**v1.2 change batch (all applied & syntax-verified):**
+**v1.2 change batch (all applied & syntax-verified, now frozen):**
 1. **Armor is now a real soak pool** (not a % discount). It absorbs ALL incoming damage until it reaches zero, THEN the leftover hits your HP. Old 55% cap + "always 3 damage" floor removed. Shows `ARMOR DOWN` when it breaks.
 2. **Armor refills from regen** — armor rebuilds at the same rate as your regen stat (more regen = faster armor back).
 3. **Armor refills from pickups** — repair kits, shield batteries, and airdrops restore armor to full (repair crate/orb, shield crate/orb, Black-Market Full repair, Black-Market Shield charge).
@@ -23,6 +23,14 @@ This is the **living handoff log** for this project. It is written so that a bra
 6. **Pause menu now shows Max HP (`❤️ x HP`) and Heal/Kill (`💗 x/kill`)** in addition to the other stats.
 7. **Early enemy damage toned down** — enemy damage scale now starts at ~1.0× at Level 1 (was 1.65×), so a Level-1 basic enemy hits near its listed base damage. Still ramps naturally with level.
 8. **Early card guarantee changed from 5 picks to 3** — the first 3 upgrades always offer Health Regen + Heal-on-Kill + one other; after pick 3 it's fully random.
+
+**v1.3 change batch (all applied & syntax-verified) — Phase 2 "HUD tells the truth":**
+1. **Damage/Speed meter now shows LIVE values** — base % × Overcharge (1.3×) × Blast (1.2×) for damage; base % × Haste/Adrenaline boost × roots slowdown for speed. The bars now fill to match the number (100% = a full bar, not a divided-down half bar).
+2. **Added a status label on the SPD meter** — shows **BOOST** (green) during Haste/Adrenaline and **SLOWED** (amber) during the roots biome slow; the bar recolors too.
+3. **Meter refreshes every 0.15s** from the animate loop so boosts/slows respond live even when regen is off.
+4. **HP no longer rounds up** — the readout uses `Math.floor(player.hp)` so it never falsely shows max while regenerating (armor readout uses floor too).
+5. **Big HP/XP numbers are overflow-safe** — the value now auto-shrinks (`clamp`) and ellipsizes instead of overflowing the box on small screens.
+6. **Armor pause chip now reads `🛡️ x armor`** so it's clear it's a soak shield, not a level number.
 
 ---
 
@@ -34,7 +42,8 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 |---|---|---|
 | v1.0 | `TankThilteteYt01.html` | **Frozen baseline. Do NOT edit.** Feature-complete. |
 | v1.1 | `TankThilteteYt01_v1.1.html` | Frozen. v1.1 tweak batch applied. |
-| v1.2 | `TankThilteteYt01_v1.2.html` | **Current working version.** v1.2 tweak batch applied (armor soak system, early-game balance, card guarantee = 3 picks). |
+| v1.2 | `TankThilteteYt01_v1.2.html` | Frozen. v1.2 tweak batch applied (armor soak system, early-game balance, card guarantee = 3 picks). |
+| v1.3 | `TankThilteteYt01_v1.3.html` | **Current working version.** v1.3 tweak batch applied (Phase 2 HUD-truth fixes). |
 | v2.0 | `TankThilteteYt01_v2.html` | (future — when we bump to the next release) |
 
 **Naming rule going forward:** every time we land a batch of confirmed, working changes, copy the current file to the next version name, edit the new file for the next batch, and add a row to this table with a one-line changelog. Adding a new version file is **safe** — the older one is untouched.
@@ -47,7 +56,8 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 |---|---|
 | `TankThilteteYt01.html` | **v1.0 — the finished game.** Frozen baseline. |
 | `TankThilteteYt01_v1.1.html` | Frozen. v1.1 tweak batch applied (regen cards, airdrop tweaks, Warlord nerf, no water, number HP/XP bars, DMG/SPD meter, cleaner pause + evolution detail page). |
-| `TankThilteteYt01_v1.2.html` | **Current working version.** v1.2 tweak batch applied (armor soak system, early-game balance, card guarantee = 3 picks). |
+| `TankThilteteYt01_v1.2.html` | Frozen. v1.2 tweak batch applied (armor soak system, early-game balance, card guarantee = 3 picks). |
+| `TankThilteteYt01_v1.3.html` | **Current working version.** v1.3 tweak batch applied (Phase 2 HUD-truth fixes: live DMG/SPD meters, BOOST/SLOWED labels, no HP round-up, overflow-safe numbers). |
 | `tank realm HUD.html` | Older/experimental build from an earlier stage. Preserved, not the main one. |
 | `tank realm HUD (2).html` | Older/experimental build. Preserved. |
 | `tank realm HUD3.html` | Older/experimental build. Preserved. |
@@ -62,11 +72,12 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 
 ## Current status (verified this session)
 
-- v1.2 tweak batch **applied and syntax-verified** (all 3 embedded script blocks → **0 errors**).
-- Armor soak math verified with a standalone Node simulation: armor absorbs all damage until 0, then leftover hits HP (e.g. armor 24, hits 30 → 24 soaked, HP takes 6; armor 24 hits 20 → fully absorbed).
-- Confirmed via live server: v1.2 serves 200 with the armor bar, `ARMOR DOWN`, `earlyCount < 3`, and `dmg: (1.00` all present.
+- v1.3 tweak batch **applied and syntax-verified** (all 3 embedded script blocks → **0 errors**).
+- `refreshCombatMeter()` extracted and smoke-tested against a stub DOM — runs without throwing; live-value math verified (baseline 100/100, overcharge → 130% dmg, haste → 125% spd, roots slow → 80% spd), 100% = full bar.
+- Confirmed via live server: v1.3 serves 200 with `cm-spd-status`, `function refreshCombatMeter`, `_meterHud`, `Math.floor(player.hp)`, and `clamp(10px` all present.
+- Armor soak math (from v1.2) still verified: armor absorbs all damage until 0, then leftover hits HP.
 - Kept: all 6 bosses, 4 difficulties, save code, embedded Three.js, PWA files.
-- v1.0 and v1.1 are frozen. All older builds untouched.
+- v1.0, v1.1, v1.2 are frozen. All older builds untouched.
 
 ---
 
@@ -83,34 +94,35 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 | 2026-08-28 | v1.0 | Feature-complete initial release. All 106-question blueprint systems built and verified. |
 | 2026-08-29 | v1.1 | First 5 upgrades always offer Health Regen + Heal-on-Kill + one other; airdrops start at L1 and heal 70% of the time for first 5 levels; Warlord (first boss) projectile speed & damage halved; all water removed from every biome; HP/XP bars show numbers (47/100) not %; added live Damage/Speed HUD meter; pause menu redesigned (deduped upgrades with ×counts, tappable evolution detail page). |
 | 2026-08-29 | v1.2 | Armor is now a real soak pool (absorbs all damage until it breaks, then HP); armor refills from regen stat + repair/shield/airdrops; armor bar added to HUD; armor card tops pool; pause shows Max HP + Heal/Kill; early enemy damage toned down (~1.0× at L1); early card guarantee reduced to first 3 picks. |
+| 2026-08-29 | v1.3 | Phase 2 "HUD tells the truth": DMG/SPD meter shows live values (base × boosts × slows) with bar filling to the number (100% = full); added BOOST/SLOWED status label + recolor; meter refreshes every 0.15s from the loop; HP no longer rounds up (uses floor); big HP/XP numbers overflow-safe (auto-shrink + ellipsis); armor pause chip reads `x armor`. |
 
 ---
 
 ## ✓ Verified TRUE findings (consolidated from 3 analyses) + what was done
 
-| Finding | Status | v1.2 action |
+| Finding | Status | Action |
 |---|---|---|
-| Armor was a hidden % discount (55% cap + 3 dmg floor), wasted past a point | ✅ TRUE | Rebuilt as a real soak pool that absorbs until breaks. |
-| Armor had no visible display / feedback | ✅ TRUE | Added armor bar + `ARMOR DOWN` break text. |
-| Speed/DMG meter bar looked half-full at 100% (scaled ÷2 / ÷3) | ✅ TRUE | NOTE: not yet changed — candidate for v1.3. |
-| Meter only shows base %, ignores Haste/roots slowdown | ✅ TRUE | NOTE: not yet changed — candidate for v1.3. |
+| Armor was a hidden % discount (55% cap + 3 dmg floor), wasted past a point | ✅ TRUE | ✅ FIXED in v1.2 (real soak pool). |
+| Armor had no visible display / feedback | ✅ TRUE | ✅ FIXED in v1.2 (armor bar + `ARMOR DOWN`). |
+| Speed/DMG meter bar looked half-full at 100% (scaled ÷2 / ÷3) | ✅ TRUE | ✅ FIXED in v1.3 (bar fills to match number, 100% = full). |
+| Meter only shows base %, ignores Haste/roots slowdown | ✅ TRUE | ✅ FIXED in v1.3 (live values + BOOST/SLOWED labels). |
 | Pause menu missing Max HP + Heal/Kill | ✅ TRUE | ✅ FIXED in v1.2. |
 | Enemies hit too hard at L1 (×1.65 on top of base) | ✅ TRUE | ✅ FIXED in v1.2 (now ~1.0× at L1). |
 | Early card guarantee repeats same 2 cards | ✅ TRUE | ✅ Kept but reduced 5 → 3 picks (user choice). |
-| HP rounds up by 1 during regen (cosmetic) | ✅ TRUE | NOTE: not yet changed — candidate for v1.3. |
-| Big HP numbers may overflow small screens | ✅ TRUE | NOTE: not yet changed — candidate for v1.3. |
+| HP rounds up by 1 during regen (cosmetic) | ✅ TRUE | ✅ FIXED in v1.3 (uses floor). |
+| Big HP numbers may overflow small screens | ✅ TRUE | ✅ FIXED in v1.3 (auto-shrink + ellipsis). |
 | "Skin gives stat bonuses / Glacier name mismatch / skin stats lost on revive" | ❌ **FALSE** | Skins are cosmetic-only (no stat system exists). No fix needed. |
 
-**Open policy:** The three analyses agreed on a real armor problem and a real "metabars don't match reality" problem. The armor redesign + early-game tone-down + card-guarantee change are done in v1.2. The remaining *display-honesty* items (meter bar fill scaling, live boosts in the meter, roots-slow indicator, HP ceil, overflow, HP panel armor) are collected as **v1.3 candidates** below.
+**Open policy:** The three analyses agreed on two real problems — armor, and "metabars don't match reality." Both are now resolved: the **armor soak redesign** (v1.2) and the **Phase-2 HUD-truth fixes** (v1.3). All originally-flagged items are now fixed except the cosmetic "add armor to the bottom HP panel" (see v1.4 candidates below).
 
 ---
 
 ## The current plan (next steps, in order)
 
-1. **Playtest v1.2 (human).** On the live preview **and ideally a real phone.** Open `http://localhost:8123/TankThilteteYt01_v1.2.html`. Focus: the new armor soak system and the fairer early game.
-2. **Collect feedback.** Is armor the right size? Does it break at a good rate? Does regen refill feel good? Is the early game fairer?
-3. **Apply the next tweak batch (v1.3 candidates, not yet done):** meter bar fill scaling so 100% = full bar; show live boosts/temp slow in the meter; a "SLOWED" indicator for the roots biome; drop the HP `Math.ceil`; make big HP numbers shrink-to-fit; optionally add armor to the bottom HP panel. Ask the human which to include.
-4. **Publish over HTTPS** so it installs as an app. Suggested free static hosts: GitHub Pages, Netlify, Vercel, or Surge. Upload `TankThilteteYt01_v1.2.html` (or whichever is current) + `manifest.webmanifest` + `sw.js` + the two icons.
+1. **Playtest v1.3 (human).** On the live preview **and ideally a real phone.** Open `http://localhost:8123/TankThilteteYt01_v1.3.html`. Focus: do the DMG/SPD meters now read honestly (bar fills to match the number, shows BOOST/SLOWED), does the HP number stop rounding up, any overflow.
+2. **Collect feedback.** Is the armor still good after both phases? Are the meters clear? Any balance note?
+3. **v1.4 candidates (not done yet):** optionally add an armor readout to the bottom HP panel; cap run-card speed if it gets absurd; give Adrenaline stack 1 its own real bonus. Ask the human which to include.
+4. **Publish over HTTPS** so it installs as an app. Suggested free static hosts: GitHub Pages, Netlify, Vercel, or Surge. Upload `TankThilteteYt01_v1.3.html` (or whichever is current) + `manifest.webmanifest` + `sw.js` + the two icons.
    - **PWA note to handle at publish time:** the manifest's `start_url`/`scope` is `./`, and the sw caches `./`. On many hosts `./` serves an `index.html`. Right now the game file is named `TankThilteteYt01*.html`, not `index.html`. So before publishing, decide whether to (a) add an `index.html` that loads the current game, or (b) point the manifest/sw at the actual game filename, or (c) rename the game file to `index.html` for that deploy. Keep this in mind so the install-as-app works.
 5. **Log every decision** in this diary so any future session is caught up.
 
@@ -118,9 +130,10 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 
 ## Open questions for the human (ask these at the start of the next session)
 
-- How does the new **armor soak system** feel? (absorbs all damage until it breaks, refills from regen + repair/shield/airdrops) — is the pool size right, does it break at a good pace, is regen refill too fast/slow?
-- Is the **early game** fairer now (enemy damage toned down, first 3 upgrades guarantee regen/heal)?
-- Do you want the **v1.3 display-honesty fixes** (meter bar fills to match label, show live boosts/slows, SLOWED indicator, drop HP round-up, overflow-safe HP numbers)? All/None/which?
+- Test v1.3 — do the **DMG/SPD meters** now read honestly (bar fills to match the number, shows BOOST/SLOWED)? Is the **HP number** no longer rounding up? Any **overflow** on big numbers?
+- After both phases, how does the **armor soak system** feel — right pool size, good break pace, good regen refill?
+- Is the **early game** fairer now?
+- Do you want the **v1.4 items** (armor readout on the bottom HP panel; cap run-card speed; make Adrenaline stack-1 its own real bonus)?
 - Which difficulty are you mostly playing (Easy/Normal/Hard/Nightmare) — too easy or too hard?
 - Do you want a dedicated `index.html` so the game loads at `./` (cleaner for the PWA install)?
 - Any new feature you want next, or are we purely polishing?
@@ -129,8 +142,8 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 
 ## If the game needs a change — the workflow
 
-1. **Edit the current working file** (`TankThilteteYt01_v1.2.html`). **Never edit the frozen baselines** `TankThilteteYt01.html`, `TankThilteteYt01_v1.1.html`.
-2. Test on the live preview (`python3 -m http.server` in the repo root, open `/TankThilteteYt01_v1.2.html`).
+1. **Edit the current working file** (`TankThilteteYt01_v1.3.html`). **Never edit the frozen baselines** `TankThilteteYt01.html`, `TankThilteteYt01_v1.1.html`, `TankThilteteYt01_v1.2.html`.
+2. Test on the live preview (`python3 -m http.server` in the repo root, open `/TankThilteteYt01_v1.3.html`).
 3. When the change works and the human is happy, copy current → next version filename, and add a row to the "versions log" table above with a one-line changelog.
 4. Update this diary's "TL;DR", "current version", and "current plan" so the next session reads the right thing.
 
@@ -142,14 +155,14 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 # Run the live preview (serves everything in this folder)
 cd /home/user/4tanksrealm
 python3 -m http.server 8123 --bind 0.0.0.0
-# then open http://localhost:8123/TankThilteteYt01_v1.2.html
+# then open http://localhost:8123/TankThilteteYt01_v1.3.html
 ```
 
 ```bash
 # Verify each embedded <script> block has valid syntax (no errors)
 node -e '
 const fs=require("fs"),vm=require("vm");
-const html=fs.readFileSync("./TankThilteteYt01_v1.2.html","utf8");
+const html=fs.readFileSync("./TankThilteteYt01_v1.3.html","utf8");
 const re=/<script\b([^>]*)>([\s\S]*?)<\/script>/gi; let m,i=0,ok=0,bad=0;
 while((m=re.exec(html))){ if(/src\s*=/.test(m[1]))continue; i++; try{new vm.Script(m[2]);ok++;}catch(e){bad++;console.log("ERR",e.message);} }
 console.log("blocks="+i+" ok="+ok+" err="+bad);'
@@ -157,7 +170,7 @@ console.log("blocks="+i+" ok="+ok+" err="+bad);'
 
 ```bash
 # Check md5 to confirm two files are identical
-md5sum TankThilteteYt01.html TankThilteteYt01_v1.1.html TankThilteteYt01_v1.2.html
+md5sum TankThilteteYt01.html TankThilteteYt01_v1.1.html TankThilteteYt01_v1.2.html TankThilteteYt01_v1.3.html
 ```
 
 ```bash

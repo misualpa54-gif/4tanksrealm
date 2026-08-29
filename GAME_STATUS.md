@@ -1,6 +1,6 @@
 # TankThilteteYt — Game Status
 
-**v1.0 is the finished game; v1.2 is the current build (carries the armor soak system + balance fixes).** This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
+**v1.0 is the finished game; v1.3 is the current build.** It carries the v1.2 armor soak system + balance fixes, plus the v1.3 "HUD tells the truth" fixes (the damage/speed meters now read honestly, show BOOST/SLOWED, no HP round-up, overflow-safe numbers). This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
 
 > **For the development / handoff log — current version, version history, and the live plan — see `DEVELOPMENT_DIARY.md`.** This file tells you *what* the game is; the diary tells you *where development is and what's next*.
 
@@ -14,8 +14,9 @@ We never overwrite a completed version. Every release is its own file, and older
 
 - **v1.0 = `TankThilteteYt01.html`** — the frozen, feature-complete baseline. Do NOT edit this.
 - **v1.1 = `TankThilteteYt01_v1.1.html`** — frozen. First tweak batch (see the diary changelog): guaranteed early regen/heal cards, airdrops from level 1, Warlord fire nerfed 50%, no water anywhere, HP/XP bars show numbers, an in-game Damage/Speed meter, and a cleaner pause menu with a tappable evolution detail page.
-- **v1.2 = `TankThilteteYt01_v1.2.html`** — the current build. Carries the armor soak system (armor absorbs all damage until it breaks, refills from regen + repair/shield/airdrops), a toned-down early enemy difficulty, a 3-pick early card guarantee, an armor HUD bar, and pause-menu Max HP + Heal/Kill.
-- Future revisions follow `TankThilteteYt01_v1.3.html`, `TankThilteteYt01_v2.html`, and so on.
+- **v1.2 = `TankThilteteYt01_v1.2.html`** — frozen. Second tweak batch: the armor soak system (armor absorbs all damage until it breaks, refills from regen + repair/shield/airdrops), a toned-down early enemy difficulty, a 3-pick early card guarantee, an armor HUD bar, and pause-menu Max HP + Heal/Kill.
+- **v1.3 = `TankThilteteYt01_v1.3.html`** — **the current build.** Third tweak batch ("HUD tells the truth"): the damage/speed meter now shows your *real* live % (base × boosts × slows) and fills to match the number (100% = a full bar), adds a **BOOST**/**SLOWED** status label on the meter, refreshes every 0.15s, drops the HP round-up (uses floor, never falsely shows max), and makes big HP/XP numbers overflow-safe (auto-shrink + ellipsis); the armor pause chip now reads "armor" so it's clearly a soak shield.
+- Future revisions follow `TankThilteteYt01_v1.4.html`, `TankThilteteYt01_v2.html`, and so on.
 
 When we land a batch of confirmed, working changes, we copy the current file to the next version name and record it in the diary's version log.
 
@@ -45,14 +46,14 @@ The entire game is **one HTML file (~1 MB)** that runs offline. The 3D engine (*
 
 - **Home screen** — a hangar backdrop with your tank on a spinning display platform (it wears your equipped skin and even shows the upgrade parts). Includes a title, three stat cells, and buttons: *Play*, *Shop*, *Settings*, *Load Save*. A small line shows which skin is equipped.
 - **In-game screen** — the battlefield with a top HUD:
-  - **HP bar** (turns red below 30%, amber below 60%, pulses when critical), shown as a **number** like `47/100` that rises when you upgrade (e.g. `80/120`); **v1.2** adds a small **armor bar** (blue) right underneath it with its own `x/y` value,
+  - **HP bar** (turns red below 30%, amber below 60%, pulses when critical), shown as a **number** like `47/100` that rises when you upgrade (e.g. `80/120`); the number never rounds up (so it won't falsely show "100/100" while you're still regenerating); **v1.2** adds a small **armor bar** (blue) right underneath it with its own `x/y` value,
   - **XP bar**, shown as a **number** like `36/120`, plus **level chip**, **score**, **coins**,
-  - a **Damage / Speed meter** (mini bars showing your current damage % and speed %),
+  - a **Damage / Speed meter** (mini bars showing your *real* current damage % and speed % — including the effect of Overcharge, Blast, Haste, Adrenaline, and the roots biome's slow; the bar fills to match the number, so 100% is a full bar, and it shows a green **BOOST** or amber **SLOWED** label while a speed change is active),
   - a small **radar minimap** (tinted with the current biome's fog color, with glowing dots for supply drops and a pulsing ring around bosses),
   - a **combo counter** with a 3-second decay bar,
   - small **buff pills** (shield, overcharge, haste, bounty).
   - Bosses show a slim HP bar along the top.
-- **Pause menu** — resume, quick-save, settings, quit. It shows your build cleanly: core stats, an **UPGRADES** list with each skill once and a count (e.g. `Missile ×2`), and an **EVOLUTIONS** list below it. Tapping an evolution opens a detail page showing what it needs, what you've already picked, and whether it's active.
+- **Pause menu** — resume, quick-save, settings, quit. It shows your build cleanly: core stats, an **UPGRADES** list with each skill once and a count (e.g. `Missile ×2`), and an **EVOLUTIONS** list below it. Tapping an evolution opens a detail page showing what it needs, what you've already picked, and whether it's active. The armor stat reads like `🛡️ 0 armor` so it's clear it's a soak shield, not a level number.
 - **Death screen** — run stats (level, kills, coins, best score, **bosses killed**, **highest combo**), your build summary, a shop shortcut, and a **revive button** (pay coins to keep the run going).
 - **Shop / Armory** — permanent upgrades, tank skins, and one-run consumables.
 - **Settings** — sound, music, graphics quality, camera mode, screen-shake (three levels), reduced-flash mode, left-handed controls, control assist, haptics.
@@ -230,7 +231,7 @@ Everything lives in one HTML file: an embedded copy of *Three.js* for 3D, proced
 
 ## Where development stands
 
-**v1.0 is done, and v1.2 now carries the armor soak system + balance fixes** (all applied and syntax-verified). The four older builds are preserved in the folder untouched.
+**v1.0 is done; v1.3 is the current build** and carries both the v1.2 armor soak system + balance fixes and the v1.3 "HUD tells the truth" fixes (all applied and syntax-verified). All older builds are preserved in the folder untouched.
 
 > The game is **feature-complete**: full survival loop, 33 enemies, 6 phased bosses, 10 visual biomes, a 15-card build system with 6 evolutions, a permanent shop + skins + consumables, 14 achievements, 4 difficulties, revive/save systems, comfort settings, and an installable offline package.
 
@@ -240,8 +241,8 @@ What remains is **testing, tuning, and publishing** — not building.
 
 ## The next step
 
-1. **Playtest v1.2.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — especially the new **armor soak system** (does it absorb damage until it breaks? does regen/pickup refill feel right?) and whether the **early game** is fairer. That feedback becomes the next batch.
+1. **Playtest v1.3.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — do the damage/speed bars now **fill to match the number** (100% = full, not a half bar)? Does the **BOOST**/**SLOWED** label show when you pick up haste/adrenaline or drive into the roots biome? Has the HP number **stopped rounding up**? Any **overflow** on big HP/XP numbers? And is the **armor soak system** still feeling right after both phases? That feedback becomes the next batch.
 2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop the current game file (plus `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`) into a repo/static folder and it installs like an app on phones.
-3. **Log the next batch as v1.3**, saved as a new file (`TankThilteteYt01_v1.3.html`) so v1.0, v1.1, and v1.2 stay preserved.
+3. **Log the next batch as v1.4**, saved as a new file (`TankThilteteYt01_v1.4.html`) so v1.0–v1.3 stay preserved.
 
-**If you tell me what still feels off after playing v1.2, that's exactly what I'll change next.**
+**If you tell me what still feels off after playing v1.3, that's exactly what I'll change next.**
