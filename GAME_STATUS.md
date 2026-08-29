@@ -1,6 +1,6 @@
 # TankThilteteYt — Game Status
 
-**v1.0 is the finished game; v1.1 is the current build with the first tweak batch applied.** This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
+**v1.0 is the finished game; v1.2 is the current build (carries the armor soak system + balance fixes).** This document is a plain-English explanation of the whole game, written for someone reading it without any code. It covers the setup, the type, the mechanics, the tools, the behaviors, the enemies, the biomes, the tank/upgrades, the shop, and how everything interacts. It also explains the next step.
 
 > **For the development / handoff log — current version, version history, and the live plan — see `DEVELOPMENT_DIARY.md`.** This file tells you *what* the game is; the diary tells you *where development is and what's next*.
 
@@ -13,8 +13,9 @@
 We never overwrite a completed version. Every release is its own file, and older files are preserved so we can always revisit them.
 
 - **v1.0 = `TankThilteteYt01.html`** — the frozen, feature-complete baseline. Do NOT edit this.
-- **v1.1 = `TankThilteteYt01_v1.1.html`** — the current build. It holds the first tweak batch (see the diary changelog): guaranteed early regen/heal cards, airdrops from level 1, Warlord fire nerfed 50%, no water anywhere, HP/XP bars show numbers, an in-game Damage/Speed meter, and a cleaner pause menu with a tappable evolution detail page.
-- Future revisions follow `TankThilteteYt01_v1.2.html`, `TankThilteteYt01_v2.html`, and so on.
+- **v1.1 = `TankThilteteYt01_v1.1.html`** — frozen. First tweak batch (see the diary changelog): guaranteed early regen/heal cards, airdrops from level 1, Warlord fire nerfed 50%, no water anywhere, HP/XP bars show numbers, an in-game Damage/Speed meter, and a cleaner pause menu with a tappable evolution detail page.
+- **v1.2 = `TankThilteteYt01_v1.2.html`** — the current build. Carries the armor soak system (armor absorbs all damage until it breaks, refills from regen + repair/shield/airdrops), a toned-down early enemy difficulty, a 3-pick early card guarantee, an armor HUD bar, and pause-menu Max HP + Heal/Kill.
+- Future revisions follow `TankThilteteYt01_v1.3.html`, `TankThilteteYt01_v2.html`, and so on.
 
 When we land a batch of confirmed, working changes, we copy the current file to the next version name and record it in the diary's version log.
 
@@ -44,7 +45,7 @@ The entire game is **one HTML file (~1 MB)** that runs offline. The 3D engine (*
 
 - **Home screen** — a hangar backdrop with your tank on a spinning display platform (it wears your equipped skin and even shows the upgrade parts). Includes a title, three stat cells, and buttons: *Play*, *Shop*, *Settings*, *Load Save*. A small line shows which skin is equipped.
 - **In-game screen** — the battlefield with a top HUD:
-  - **HP bar** (turns red below 30%, amber below 60%, pulses when critical), shown as a **number** like `47/100` that rises when you upgrade (e.g. `80/120`),
+  - **HP bar** (turns red below 30%, amber below 60%, pulses when critical), shown as a **number** like `47/100` that rises when you upgrade (e.g. `80/120`); **v1.2** adds a small **armor bar** (blue) right underneath it with its own `x/y` value,
   - **XP bar**, shown as a **number** like `36/120`, plus **level chip**, **score**, **coins**,
   - a **Damage / Speed meter** (mini bars showing your current damage % and speed %),
   - a small **radar minimap** (tinted with the current biome's fog color, with glowing dots for supply drops and a pulsing ring around bosses),
@@ -63,7 +64,7 @@ The entire game is **one HTML file (~1 MB)** that runs offline. The 3D engine (*
 1. **Drive** — a joystick occupies the left half of the screen. Push up and the tank moves "up" on the screen. The camera glides behind you and leans into your direction of travel when you're moving fast.
 2. **Fire** — touch and hold the right half. The cannon auto-picks a target and shoots. You never aim manually.
 3. **Kill** — kills give points, coins, and XP. Quick kills in a row build a **combo** (decays after 3 seconds of no kills); a high combo multiplies your coin payout up to **2.2×**.
-4. **Level up** — each level you get **3 upgrade cards and pick 1** (you can reroll the hand if you bought the perk). This is where builds snowball. **v1.1:** for your **first 5 upgrades** the hand always includes Health Regen (Nano Repair) and Heal-on-Kill (Field Medic) plus one other random card, so early runs never starve for survivability.
+4. **Level up** — each level you get **3 upgrade cards and pick 1** (you can reroll the hand if you bought the perk). This is where builds snowball. **v1.1/v1.2:** for your **first 3 upgrades** the hand always includes Health Regen (Nano Repair) and Heal-on-Kill (Field Medic) plus one other random card, so early runs never starve for survivability.
 5. **Boss every 5 levels** — one boss at a time, with a **12-second breather** afterward. Beating one heals you **25%** and pays out a special **boss vault** of amplified ("ELITE") cards.
 6. **The world changes every 3 levels** — a new biome fades in.
 7. **Die or quit → bank coins → shop → repeat.**
@@ -103,7 +104,7 @@ Your power comes from three layers:
 **What each stat actually does:**
 
 - **Max HP / Regen** — your health pool and health-per-second recovery.
-- **Armor** — flat damage reduction from each hit you take.
+- **Armor** — a soak shield. It absorbs **all** incoming damage until it is reduced to zero, and **then** the excess hits your health. It refills over time at a rate tied to your regen stat, and is restored to full by repair kits, shield batteries, and airdrops. A small blue bar under your HP shows how much armor is left (and flashes `ARMOR DOWN` when it breaks).
 - **Damage** — each shell hits harder. **Fire rate** — shells leave the barrel faster.
 - **Speed** — top driving speed. **Crit** — chance a shell deals double damage (shows a "CRIT" popup).
 - **Multishot** — extra parallel projectiles per shot. **Pierce** — a shell keeps going through enemies after the first hit.
@@ -170,7 +171,7 @@ The transition is a smooth "morph" — the old world shrinks away as the new one
 
 ## Pickups and drops
 
-- **Supply crates** (gold, from level 1) fall from the sky on a beam of light, land with a bounce, and glow on the minimap. Drive into one for one of six rewards: **repair** (+45% HP), **overcharge** (damage boost for 15s), **shield** (instant full shield), **coin cache**, **bonus upgrade card**, or **haste** (10s speed). Crates are more common early and thin out as you level. **v1.1:** airdrops now start from level 1, and for the first 5 levels they give the repair (health) reward 70% of the time; after level 5 the reward is fully random.
+- **Supply crates** (gold, from level 1) fall from the sky on a beam of light, land with a bounce, and glow on the minimap. Drive into one for one of six rewards: **repair** (+45% HP **and restores armor**), **overcharge** (damage boost for 15s), **shield** (instant full shield **and restores armor**), **coin cache**, **bonus upgrade card**, or **haste** (10s speed). Crates are more common early and thin out as you level. **v1.1:** airdrops now start from level 1, and for the first 5 levels they give the repair (health) reward 70% of the time; after level 5 the reward is fully random.
 - **Black-market crates** (purple, ~1 in 4) open a small shop overlay with extra purchases, bordered in gold — a bit riskier, a bit richer.
 - **Aid orbs** (floating glowing spheres): **green = repair**, **blue = shield**, **cyan = haste**. More common early, rare later.
 - At most **2 crates and 2 orbs** exist at once, and both show as pulsing dots on the radar so you can plan routes around them.
@@ -229,7 +230,7 @@ Everything lives in one HTML file: an embedded copy of *Three.js* for 3D, proced
 
 ## Where development stands
 
-**v1.0 is done, and v1.1 now carries the first tweak batch** (all applied and syntax-verified). The four older builds are preserved in the folder untouched.
+**v1.0 is done, and v1.2 now carries the armor soak system + balance fixes** (all applied and syntax-verified). The four older builds are preserved in the folder untouched.
 
 > The game is **feature-complete**: full survival loop, 33 enemies, 6 phased bosses, 10 visual biomes, a 15-card build system with 6 evolutions, a permanent shop + skins + consumables, 14 achievements, 4 difficulties, revive/save systems, comfort settings, and an installable offline package.
 
@@ -239,8 +240,8 @@ What remains is **testing, tuning, and publishing** — not building.
 
 ## The next step
 
-1. **Playtest v1.1.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — difficulty spikes, poor pacing, an unfair boss, a touch-control problem, a confusing card, or a balance that's too easy/hard. That feedback becomes the next batch.
+1. **Playtest v1.2.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — especially the new **armor soak system** (does it absorb damage until it breaks? does regen/pickup refill feel right?) and whether the **early game** is fairer. That feedback becomes the next batch.
 2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop the current game file (plus `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`) into a repo/static folder and it installs like an app on phones.
-3. **Log the next batch as v1.2**, saved as a new file (`TankThilteteYt01_v1.2.html`) so v1.0 and v1.1 stay preserved.
+3. **Log the next batch as v1.3**, saved as a new file (`TankThilteteYt01_v1.3.html`) so v1.0, v1.1, and v1.2 stay preserved.
 
-**If you tell me what still feels off after playing v1.1, that's exactly what I'll change next.**
+**If you tell me what still feels off after playing v1.2, that's exactly what I'll change next.**
