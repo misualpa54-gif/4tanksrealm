@@ -1,6 +1,6 @@
 /* TankThilteteYt — offline shell (network-first pages, cache-first assets) */
 const CACHE = 'tankthilteteyt-v1';
-const ASSETS = ['./', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const ASSETS = ['./', './manifest.webmanifest', './icon-192.png', './icon-512.png', './TankThilteteYt01_v1.4.html'];
 self.addEventListener('install', (e) => {
     e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));
     self.skipWaiting();

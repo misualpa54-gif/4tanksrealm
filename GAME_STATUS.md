@@ -226,7 +226,7 @@ Lifetime stats (kills, distance, playtime, best score, best run) persist across 
 
 ## Tech under the hood (one paragraph)
 
-Everything lives in one HTML file: an embedded copy of *Three.js* for 3D, procedurally generated sound (no audio files), a 2D canvas minimap, and browser local storage for saves. It's built mobile-first for portrait phones with safe-area padding, targeting **60 FPS** on mid-range phones (capped pixel ratio, shared scratch math objects, chunked tasks across frames). It ships with a **PWA shell** (web manifest + icons + a small offline service worker), so over HTTPS it installs like an app and plays without internet.
+Everything lives in one HTML file: an embedded copy of *Three.js* for 3D, procedurally generated sound (no audio files), a 2D canvas minimap, and browser local storage for saves. It's built mobile-first for portrait phones with safe-area padding, targeting **60 FPS** on mid-range phones (capped pixel ratio, shared scratch math objects, chunked tasks across frames). It ships with a **PWA shell**: a web manifest (`manifest.webmanifest`), the two icons, an offline service worker (`sw.js`), and an `index.html` entry point that opens the current versioned game — so over HTTPS it installs like an app and plays without internet.
 
 ---
 
@@ -243,7 +243,7 @@ What remains is **testing, tuning, and publishing** — not building.
 ## The next step
 
 1. **Playtest v1.4.** Play it on the live preview (or, ideally, on an actual phone) and note anything that *feels* off — is the **260% top-speed cap** about right (or too tight), does the tank now stay controllable when you stack speed + Adrenaline, does a single **Adrenaline Rush** stack feel worth taking (speed + damage)? That feedback becomes the next batch.
-2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop the current game file (plus `manifest.webmanifest`, `sw.js`, `icon-192.png`, `icon-512.png`) into a repo/static folder and it installs like an app on phones.
+2. **Publish it over HTTPS** so the install-as-app (PWA) part actually works. The natural next home is something like **GitHub Pages, Netlify, Vercel, or Surge** — all free and all serve HTTPS. Drop the whole static bundle into a repo/static folder: `index.html`, the current game file (`TankThilteteYt01_v1.4.html`), `manifest.webmanifest`, `sw.js`, and the two icons. (`index.html` already opens the game, so the site's front door works. On each future version, update `index.html`'s redirect and the `sw.js` pre-cache list, then re-upload.)
 3. **Log the next batch as v1.5**, saved as a new file (`TankThilteteYt01_v1.5.html`) so v1.0–v1.4 stay preserved.
 
 **If you tell me what still feels off after playing v1.4, that's exactly what I'll change next.**

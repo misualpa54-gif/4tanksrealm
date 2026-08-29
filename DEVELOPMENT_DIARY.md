@@ -69,8 +69,9 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 | `tank realm HUD (2).html` | Older/experimental build. Preserved. |
 | `tank realm HUD3.html` | Older/experimental build. Preserved. |
 | `tank-eternal_1.13_biome.html` | Older/experimental build. Preserved. |
+| `index.html` | **Live entry point (Option A).** It's a tiny launcher that opens the current versioned game file (`TankThilteteYt01_v1.4.html`); it's PWA-eligible and registers the SW. Update its redirect target (and the sw `ASSETS`) when we cut a new version. |
 | `manifest.webmanifest` | PWA manifest (name, icons, portrait, standalone). |
-| `sw.js` | PWA offline service worker (network-first pages, cache-first assets). |
+| `sw.js` | PWA offline service worker (network-first pages, cache-first assets). Pre-caches `./`, the manifest, icons, AND the game file so install works offline. |
 | `icon-192.png` / `icon-512.png` | PWA app icons. |
 | `GAME_STATUS.md` | Full plain-English explanation of the whole game. |
 | `DEVELOPMENT_DIARY.md` | **This log.** |
@@ -133,8 +134,8 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 1. **Playtest v1.4 (human).** On the live preview **and ideally a real phone.** Open `http://localhost:8123/TankThilteteYt01_v1.4.html`. Focus: does the **top-speed cap** keep the tank controllable on a touch joystick; does **Adrenaline Rush** (1 stack) now feel worth taking (speed + damage); does the **SPD meter** still read honestly (capped at 260%, shows BOOST/SLOWED).
 2. **Collect feedback.** Is the cap too low / too high? Is Adrenaline balanced? Any other balance note?
 3. **Next batch is player feedback-driven.** No v1.5 items are pre-planned; ask the human what still feels off, or whether to move to publishing.
-4. **Publish over HTTPS** so it installs as an app. Suggested free static hosts: GitHub Pages, Netlify, Vercel, or Surge. Upload `TankThilteteYt01_v1.4.html` (or whichever is current) + `manifest.webmanifest` + `sw.js` + the two icons.
-   - **PWA note to handle at publish time:** the manifest's `start_url`/`scope` is `./`, and the sw caches `./`. On many hosts `./` serves an `index.html`. Right now the game file is named `TankThilteteYt01*.html`, not `index.html`. So before publishing, decide whether to (a) add an `index.html` that loads the current game, or (b) point the manifest/sw at the actual game filename, or (c) rename the game file to `index.html` for that deploy. Keep this in mind so the install-as-app works.
+4. **Publish over HTTPS** so it installs as an app. Suggested free static hosts: GitHub Pages, Netlify, Vercel, or Surge. Upload the static bundle: `index.html` + the current game file (`TankThilteteYt01_v1.4.html`) + `manifest.webmanifest` + `sw.js` + `icon-192.png` + `icon-512.png`.
+   - **PWA decision RESOLVED (Option A):** the manifest's `start_url`/`scope` stays `./`, and the sw caches `./`. We added an `index.html` that opens the current versioned game file, so `./` now works on every host. **On each future release:** update the redirect target in `index.html` AND the game filename in `sw.js`'s `ASSETS` list, then re-upload. (`./` = the site front door → hosts serve `index.html` → it opens the game.)
 5. **Log every decision** in this diary so any future session is caught up.
 
 ---
@@ -145,7 +146,7 @@ We never overwrite. Each "release" is its own file. Old versions stay in the rep
 - After all four versions, how does the **armor soak system** feel — right pool size, good break pace, good regen refill?
 - Is the **early game** fairer now?
 - Which difficulty are you mostly playing (Easy/Normal/Hard/Nightmare) — too easy or too hard?
-- Do you want a dedicated `index.html` so the game loads at `./` (cleaner for the PWA install)?
+- ✅ **Resolved (Option A):** we added `index.html` so the game loads at `./` for the PWA install. On each new version, update the redirect in `index.html` + the sw `ASSETS` filename.
 - Any new feature you want next, or are we purely polishing? (No v1.5 items are pre-planned — this batch is feedback-driven.)
 
 ---

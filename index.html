@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- TankThilteteYt — live entry point (Option A).
+         This is the "front door" of the site. It is NOT a second copy of the
+         game; it simply opens the current, versioned game file. When we cut a
+         new version (v1.5, v1.6 ...), only the redirect target below changes. -->
+
+    <title>TankThilteteYt</title>
+
+    <!-- PWA: the manifest + icons + theme. Kept here too so the root page itself
+         is install-eligible even before the redirect resolves. -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#171006">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" href="icon-192.png" type="image/png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Redirect target: the CURRENT game build. Update this line when we release a new version. -->
+    <meta http-equiv="refresh" content="0; url=TankThilteteYt01_v1.4.html">
+</head>
+<body style="margin:0;background:#0b0f13;color:#d1b87d;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;">
+    <p>Loading TankThilteteYt…</p>
+    <script>
+        // Instant, no-history redirect — the reliable path (the meta-refresh above is
+        // the no-JS / no-script fallback). Both go to the same file.
+        try { window.location.replace('TankThilteteYt01_v1.4.html'); } catch (e) {}
+        // Register the offline service worker at the root too, so the entry page is a
+        // proper app shell. (The game file also registers it; this is harmless/duplicate.)
+        if ('serviceWorker' in navigator &&
+            (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+            window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+        }
+    </script>
+</body>
+</html>
